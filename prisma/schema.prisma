@@ -1,0 +1,316 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id              String    @id @default(cuid())
+  email           String    @unique
+  name            String?
+  phone           String?
+  passwordHash    String?
+  image           String?
+  emailVerified   DateTime?
+  role            String    @default("user")
+  telegramChatId  String?
+  phoneForWhatsapp String?
+  twitterHandle   String?
+  linkedinUrl     String?
+  pitchVideoUrl   String?
+  promoCode       String?
+  promoCodeOffer  String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  listings       Listing[]
+  bids           Bid[]
+  invoices       Invoice[]
+  refunds        Refund[]
+  notifications  Notification[]
+  auditLogs      AuditLog[]
+
+  @@index([email])
+}
+
+model Category {
+  id          String    @id @default(cuid())
+  name        String    @unique
+  slug        String    @unique
+  description String?
+  icon        String?
+  isActive    Boolean   @default(true)
+  sortOrder   Int       @default(0)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  listings Listing[]
+
+  @@index([slug])
+}
+
+model Listing {
+  id                    String    @id @default(cuid())
+  slug                  String    @unique
+  name                  String
+  url                   String
+  tagline               String
+  description           String
+  logoUrl               String?
+  logoKey               String?
+  domain                String?
+  founderName           String?
+  founderBio            String?
+  founderAvatarUrl      String?
+  gstin                 String?
+  contactEmail          String
+  contactPhone          String?
+  status                String    @default("pending")
+  rejectionReason       String?
+  verifiedAt            DateTime?
+  hideRank              Boolean   @default(false)
+  timeHeldRank1Seconds  Int       @default(0)
+  dailyRank             Int?
+  weeklyRank            Int?
+  totalViews            Int       @default(0)
+  socialTwitter         String?
+  socialLinkedin        String?
+  socialWebsite         String?
+  promoCode             String?
+  promoOffer            String?
+  ogImageUrl            String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  userId     String
+  user       User     @relation(fields: [userId], references: [id])
+  categoryId String
+  category   Category @relation(fields: [categoryId], references: [id])
+
+  bids         Bid[]
+  rankSnapshots RankSnapshot[]
+  clickEvents   ClickEvent[]
+  moderationCases ModerationCase[]
+  weeklyChampions WeeklyChampion[]
+
+  @@index([slug])
+  @@index([status])
+  @@index([categoryId])
+  @@index([userId])
+}
+
+model Bid {
+  id              String    @id @default(cuid())
+  amount          Int
+  status          String    @default("pending")
+  idempotencyKey  String    @unique
+  paymentOrderId  String?
+  paymentId       String?
+  paymentMethod   String?
+  paymentStatus   String    @default("pending")
+  paymentVerified Boolean   @default(false)
+  verifiedAt      DateTime?
+  activatedAt     DateTime?
+  rankAtActivation Int?
+  invoiceGenerated Boolean  @default(false)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  userId     String
+  user       User     @relation(fields: [userId], references: [id])
+  listingId  String
+  listing    Listing  @relation(fields: [listingId], references: [id])
+
+  refund    Refund?
+  invoice   Invoice?
+
+  @@index([userId])
+  @@index([listingId])
+  @@index([status])
+  @@index([paymentOrderId])
+}
+
+model RankSnapshot {
+  id         String   @id @default(cuid())
+  rank       Int
+  bidAmount  Int
+  snapshotAt DateTime @default(now())
+  period     String   @default("all-time")
+
+  listingId String
+  listing   Listing @relation(fields: [listingId], references: [id])
+
+  @@index([period, rank])
+  @@index([listingId])
+}
+
+model Payment {
+  id               String   @id @default(cuid())
+  orderId          String   @unique
+  paymentId        String?
+  amount           Int
+  currency         String   @default("INR")
+  status           String   @default("created")
+  method           String?
+  provider         String   @default("razorpay")
+  providerMeta     String?
+  webhookProcessed Boolean  @default(false)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  orderIdRef String?
+  invoice    Invoice?
+
+  @@index([orderId])
+  @@index([paymentId])
+  @@index([status])
+}
+
+model Refund {
+  id          String    @id @default(cuid())
+  amount      Int
+  reason      String
+  status      String    @default("pending")
+  providerRef String?
+  adminNote   String?
+  processedAt DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  bidId  String @unique
+  bid    Bid    @relation(fields: [bidId], references: [id])
+
+  userId String
+  user   User @relation(fields: [userId], references: [id])
+}
+
+model Invoice {
+  id              String   @id @default(cuid())
+  invoiceNumber   String   @unique
+  invoiceDate     DateTime @default(now())
+  dueDate         DateTime?
+  subtotal        Int
+  gstRate         Int      @default(18)
+  gstAmount       Int
+  cgstAmount      Int?
+  sgstAmount      Int?
+  igstAmount      Int?
+  totalAmount     Int
+  sellerName      String   @default("IndBid Technologies Pvt. Ltd.")
+  sellerGstin     String?
+  sellerAddress   String?
+  buyerName       String?
+  buyerGstin      String?
+  buyerAddress    String?
+  paymentRef      String?
+  pdfUrl          String?
+  status          String   @default("pending")
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  bidId String @unique
+  bid   Bid    @relation(fields: [bidId], references: [id])
+
+  paymentId String?  @unique
+  payment   Payment? @relation(fields: [paymentId], references: [id])
+
+  userId String
+  user   User @relation(fields: [userId], references: [id])
+}
+
+model ClickEvent {
+  id        String   @id @default(cuid())
+  referrer  String?
+  userAgent String?
+  ip        String?
+  country   String?
+  state     String?
+  isBot     Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  listingId String
+  listing   Listing @relation(fields: [listingId], references: [id])
+
+  @@index([listingId, createdAt])
+}
+
+model ModerationCase {
+  id          String    @id @default(cuid())
+  type        String
+  status      String    @default("open")
+  reason      String?
+  adminNote   String?
+  resolvedBy  String?
+  resolvedAt  DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  listingId String
+  listing   Listing @relation(fields: [listingId], references: [id])
+
+  @@index([status])
+}
+
+model Notification {
+  id        String    @id @default(cuid())
+  type      String
+  title     String
+  body      String
+  read      Boolean   @default(false)
+  channel   String    @default("in-app")
+  sentAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  userId String
+  user   User @relation(fields: [userId], references: [id])
+
+  @@index([userId, read])
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  action    String
+  entity    String
+  entityId  String?
+  meta      String?
+  ip        String?
+  createdAt DateTime @default(now())
+
+  userId String?
+  user   User? @relation(fields: [userId], references: [id])
+
+  @@index([action, createdAt])
+  @@index([entity, entityId])
+}
+
+model FeatureFlag {
+  id          String    @id @default(cuid())
+  key         String    @unique
+  value       Boolean   @default(false)
+  description String?
+  updatedAt   DateTime  @updatedAt
+}
+
+model SystemConfig {
+  id    String @id @default(cuid())
+  key   String @unique
+  value String
+}
+
+model WeeklyChampion {
+  id          String   @id @default(cuid())
+  weekStart   DateTime
+  weekEnd     DateTime
+  rank        Int
+  bidAmount   Int
+  totalClicks Int      @default(0)
+  listingId   String
+  listing     Listing  @relation(fields: [listingId], references: [id])
+  createdAt   DateTime @default(now())
+
+  @@unique([weekStart, rank])
+  @@index([weekStart])
+}

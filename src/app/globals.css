@@ -1,0 +1,382 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --color-indbid-ink: #101114;
+  --color-indbid-canvas: #F8F7F3;
+  --color-indbid-saffron: #FF8A00;
+  --color-indbid-green: #138A4B;
+  --color-indbid-blue: #245BFF;
+  --color-indbid-border: #E6E4DF;
+}
+
+* {
+  border-color: var(--color-indbid-border);
+}
+
+body {
+  color: var(--color-indbid-ink);
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #d1d5db;
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #9ca3af;
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Number input spinner hide */
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+input[type="number"] {
+  -moz-appearance: textfield;
+}
+
+/* ========== CUSTOM ANIMATIONS ========== */
+
+/* Slide up with fade - for podium cards */
+@keyframes slide-up {
+  0% {
+    opacity: 0;
+    transform: translateY(30px) scale(0.95);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.animate-slide-up {
+  animation: slide-up 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* Fade in */
+@keyframes fade-in {
+  0% {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fade-in 0.5s ease-out both;
+}
+
+/* Shimmer effect for gold badge */
+@keyframes shimmer {
+  0% {
+    background-position: -200% center;
+  }
+  100% {
+    background-position: 200% center;
+  }
+}
+
+.animate-shimmer {
+  background-size: 200% auto;
+  animation: shimmer 3s linear infinite;
+}
+
+/* Float effect for #1 crown */
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
+}
+
+.animate-float {
+  animation: float 2s ease-in-out infinite;
+}
+
+/* Glow pulse for #1 card */
+@keyframes glow-pulse {
+  0%, 100% {
+    box-shadow: 0 0 20px rgba(255, 138, 0, 0.15);
+  }
+  50% {
+    box-shadow: 0 0 40px rgba(255, 138, 0, 0.3);
+  }
+}
+
+.animate-glow-pulse {
+  animation: glow-pulse 2s ease-in-out infinite;
+}
+
+/* Scale in bounce */
+@keyframes scale-in {
+  0% {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  60% {
+    transform: scale(1.05);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.animate-scale-in {
+  animation: scale-in 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+/* Rank number pop */
+@keyframes rank-pop {
+  0% {
+    transform: scale(0.5) rotate(-10deg);
+    opacity: 0;
+  }
+  60% {
+    transform: scale(1.2) rotate(3deg);
+  }
+  100% {
+    transform: scale(1) rotate(0deg);
+    opacity: 1;
+  }
+}
+
+.animate-rank-pop {
+  animation: rank-pop 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+/* Gradient text shimmer */
+@keyframes gradient-shift {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.animate-gradient {
+  background-size: 200% 200%;
+  animation: gradient-shift 3s ease infinite;
+}
+
+/* Live dot pulse */
+@keyframes live-pulse {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.5;
+    transform: scale(1.5);
+  }
+}
+
+.animate-live-pulse {
+  animation: live-pulse 1.5s ease-in-out infinite;
+}
+
+/* Card hover tilt */
+.card-tilt {
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.card-tilt:hover {
+  transform: perspective(1000px) rotateY(-2deg) rotateX(1deg);
+}
+
+/* Stagger children animation */
+.stagger-children > * {
+  animation: slide-up 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.stagger-children > *:nth-child(1) { animation-delay: 0ms; }
+.stagger-children > *:nth-child(2) { animation-delay: 100ms; }
+.stagger-children > *:nth-child(3) { animation-delay: 200ms; }
+.stagger-children > *:nth-child(4) { animation-delay: 300ms; }
+.stagger-children > *:nth-child(5) { animation-delay: 400ms; }
+.stagger-children > *:nth-child(6) { animation-delay: 500ms; }
+
+/* Confetti-like sparkle for #1 */
+@keyframes sparkle {
+  0%, 100% {
+    opacity: 0;
+    transform: scale(0) rotate(0deg);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1) rotate(180deg);
+  }
+}
+
+.sparkle {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  background: #FF8A00;
+  border-radius: 50%;
+  animation: sparkle 2s ease-in-out infinite;
+}
+
+.sparkle:nth-child(1) { top: 10%; left: 5%; animation-delay: 0s; }
+.sparkle:nth-child(2) { top: 20%; right: 10%; animation-delay: 0.3s; }
+.sparkle:nth-child(3) { bottom: 15%; left: 15%; animation-delay: 0.6s; }
+.sparkle:nth-child(4) { bottom: 25%; right: 5%; animation-delay: 0.9s; }
+
+/* Smooth hover underline */
+.hover-underline {
+  position: relative;
+}
+
+.hover-underline::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background: currentColor;
+  transition: width 0.3s ease;
+}
+
+.hover-underline:hover::after {
+  width: 100%;
+}
+
+/* Smooth reveal classes */
+.reveal-up { opacity: 0; transform: translateY(30px); transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1), transform 0.7s cubic-bezier(0.16, 1, 0.3, 1); }
+.reveal-down { opacity: 0; transform: translateY(-30px); transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1), transform 0.7s cubic-bezier(0.16, 1, 0.3, 1); }
+.reveal-left { opacity: 0; transform: translateX(30px); transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1), transform 0.7s cubic-bezier(0.16, 1, 0.3, 1); }
+.reveal-right { opacity: 0; transform: translateX(-30px); transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1), transform 0.7s cubic-bezier(0.16, 1, 0.3, 1); }
+.revealed { opacity: 1 !important; transform: translate(0, 0) !important; }
+
+/* Smooth hover effects */
+.hover-lift { transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease; }
+.hover-lift:hover { transform: translateY(-4px); box-shadow: 0 12px 40px rgba(0,0,0,0.08); }
+
+/* Pulse animation for live indicators */
+@keyframes smooth-pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.6; transform: scale(1.5); }
+}
+.smooth-pulse { animation: smooth-pulse 2s ease-in-out infinite; }
+
+/* Number transition */
+.number-transition { transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1); }
+
+/* Card hover glow */
+.card-glow { transition: box-shadow 0.3s ease, border-color 0.3s ease; }
+.card-glow:hover { box-shadow: 0 0 0 1px rgba(255, 138, 0, 0.1), 0 8px 30px rgba(0,0,0,0.06); border-color: rgba(255, 138, 0, 0.2); }
+
+/* Smooth page transitions */
+.page-enter { animation: page-slide-in 0.5s cubic-bezier(0.16, 1, 0.3, 1) both; }
+@keyframes page-slide-in { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+/* Rank shuffle flash */
+@keyframes rank-flash {
+  0% { background-color: rgba(255, 138, 0, 0.1); }
+  100% { background-color: transparent; }
+}
+.rank-flash { animation: rank-flash 1s ease-out; }
+
+/* Connection pulse for live indicator */
+@keyframes connection-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(19, 138, 75, 0.4); }
+  50% { box-shadow: 0 0 0 6px rgba(19, 138, 75, 0); }
+}
+.connection-pulse { animation: connection-pulse 2s ease-in-out infinite; }
+
+/* Badge shimmer for rank #1 */
+@keyframes badge-shimmer {
+  0% { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+.badge-shimmer {
+  background: linear-gradient(90deg, #FF8A00 0%, #FFD700 50%, #FF8A00 100%);
+  background-size: 200% auto;
+  animation: badge-shimmer 3s linear infinite;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Modal glassmorphism backdrop */
+@keyframes glass-backdrop {
+  from { backdrop-filter: blur(0px); opacity: 0; }
+  to { backdrop-filter: blur(12px); opacity: 1; }
+}
+
+.animate-glass-backdrop {
+  animation: glass-backdrop 0.3s ease-out both;
+}
+
+/* Crown pulse ring */
+@keyframes crown-ring-pulse {
+  0% { box-shadow: 0 0 0 0 rgba(255, 138, 0, 0.4); }
+  50% { box-shadow: 0 0 0 8px rgba(255, 138, 0, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(255, 138, 0, 0); }
+}
+
+.animate-crown-ring {
+  animation: crown-ring-pulse 2s ease-in-out infinite;
+}
+
+/* Ticker slide animation */
+@keyframes ticker-slide {
+  0% { transform: translateY(20px); opacity: 0; }
+  10% { transform: translateY(0); opacity: 1; }
+  90% { transform: translateY(0); opacity: 1; }
+  100% { transform: translateY(-20px); opacity: 0; }
+}
+
+.animate-ticker-slide {
+  animation: ticker-slide 4s ease-in-out infinite;
+}
+
+/* Outbid button glow */
+@keyframes outbid-glow {
+  0%, 100% { box-shadow: 0 0 15px rgba(255, 138, 0, 0.3); }
+  50% { box-shadow: 0 0 25px rgba(255, 138, 0, 0.6); }
+}
+
+.animate-outbid-glow {
+  animation: outbid-glow 2s ease-in-out infinite;
+}
+
+/* Hot badge pulse */
+@keyframes hot-pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+}
+
+.animate-hot-pulse {
+  animation: hot-pulse 1s ease-in-out infinite;
+}
