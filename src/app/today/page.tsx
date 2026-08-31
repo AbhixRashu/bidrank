@@ -86,8 +86,8 @@ function TodayRow({
             {listing.verified && (
               <CheckCircle className="h-3.5 w-3.5 text-blue-500 shrink-0" />
             )}
-            {isTop3 && (
-              <Badge variant="secondary" className="text-[10px] py-0 px-1">
+            {isTopThree && (
+              <Badge variant="outline" className="text-[10px] py-0 px-1">
                 Top {rank}
               </Badge>
             )}
