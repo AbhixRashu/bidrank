@@ -14,65 +14,35 @@ import {
   ArrowRight,
 } from "lucide-react";
 
-export async function generateStaticParams() {
-  const listings = await db.listing.findMany({
-    where: { status: "approved" },
-    select: { slug: true },
-  });
-  return listings.map((l) => ({ slug: l.slug }));
-}
+export const dynamic = "force-dynamic";
 
 export async function generateMetadata({
   params,
 }: {
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
-  const { slug } = await params;
-  const listing = await db.listing.findUnique({
-    where: { slug },
-    include: {
-      category: true,
-      bids: {
-        where: { status: "activated" },
-        orderBy: { amount: "desc" },
-        take: 1,
+  try {
+    const { slug } = await params;
+    const listing = await db.listing.findUnique({
+      where: { slug },
+      include: {
+        category: true,
+        bids: {
+          where: { status: "activated" },
+          orderBy: { amount: "desc" },
+          take: 1,
+        },
       },
-    },
-  });
-  if (!listing) return { title: "Listing Not Found" };
+    });
+    if (!listing) return { title: "Listing Not Found" };
 
-  const allListings = await db.listing.findMany({
-    where: { status: "approved", bids: { some: { status: "activated" } } },
-    include: {
-      bids: {
-        where: { status: "activated" },
-        orderBy: { amount: "desc" },
-        take: 1,
-      },
-    },
-  });
-  const sorted = allListings.sort(
-    (a, b) => b.bids[0].amount - a.bids[0].amount
-  );
-  const rank = sorted.findIndex((l) => l.slug === listing.slug) + 1;
-
-  return {
-    title: `${listing.name} — Rank #${rank}`,
-    description: listing.description,
-    openGraph: {
-      title: `${listing.name} — Rank #${rank} on BidRank`,
-      description: listing.tagline,
-      url: `https://bidrank.online/listing/${listing.slug}`,
-      siteName: "BidRank",
-      type: "website",
-      locale: "en_IN",
-    },
-    twitter: {
-      card: "summary_large_image",
-      title: `${listing.name} — Rank #${rank} on BidRank`,
-      description: listing.tagline,
-    },
-  };
+    return {
+      title: `${listing.name} — BidRank`,
+      description: listing.tagline || listing.description,
+    };
+  } catch {
+    return { title: "Listing | BidRank" };
+  }
 }
 
 export default async function ListingPage({

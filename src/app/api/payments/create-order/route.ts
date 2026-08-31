@@ -3,12 +3,15 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { db } from "@/lib/db";
 
-const Razorpay = require("razorpay");
+export const dynamic = "force-dynamic";
 
-const razorpay = new Razorpay({
-  key_id: process.env.RAZORPAY_KEY_ID,
-  key_secret: process.env.RAZORPAY_KEY_SECRET,
-});
+function getRazorpay() {
+  const Razorpay = require("razorpay");
+  return new Razorpay({
+    key_id: process.env.RAZORPAY_KEY_ID || "rzp_test_placeholder",
+    key_secret: process.env.RAZORPAY_KEY_SECRET || "secret_placeholder",
+  });
+}
 
 export async function POST(request: NextRequest) {
   try {
@@ -76,6 +79,7 @@ export async function POST(request: NextRequest) {
     });
 
     // Create Razorpay order
+    const razorpay = getRazorpay();
     const order = await razorpay.orders.create({
       amount: amount * 100, // paise
       currency: "INR",

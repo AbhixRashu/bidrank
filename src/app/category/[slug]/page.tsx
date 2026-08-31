@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { db } from "@/lib/db";
-import { getCategoryBySlug } from "@/lib/utils/categories";
+import { getCategoryBySlug, CATEGORIES } from "@/lib/utils/categories";
 import { formatINR, timeAgo } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -12,10 +12,7 @@ import {
   ArrowLeft,
 } from "lucide-react";
 
-export async function generateStaticParams() {
-  const categories = await db.category.findMany({ select: { slug: true } });
-  return categories.map((cat) => ({ slug: cat.slug }));
-}
+export const dynamic = "force-dynamic";
 
 export async function generateMetadata({
   params,

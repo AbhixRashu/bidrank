@@ -1,6 +1,5 @@
 import { ImageResponse } from "next/og";
 
-export const runtime = "edge";
 export const alt = "BidRank \u2014 Live Bid-to-Rank Leaderboard for Products";
 export const size = {
   width: 1200,
@@ -126,13 +125,13 @@ export default async function Image() {
           }}
         >
           <div style={{ display: "flex", alignItems: "center", gap: "8px", fontSize: "20px", color: "#E5E7EB" }}>
-            <span style={{ color: "#10B981", fontSize: "22px" }}>✓</span> Instant UPI & Cards
+            <span style={{ color: "#10B981", fontSize: "22px" }}>•</span> Instant UPI & Cards
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: "8px", fontSize: "20px", color: "#E5E7EB" }}>
-            <span style={{ color: "#10B981", fontSize: "22px" }}>✓</span> Verified Real-time Bids
+            <span style={{ color: "#10B981", fontSize: "22px" }}>•</span> Verified Real-time Bids
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: "8px", fontSize: "20px", color: "#E5E7EB" }}>
-            <span style={{ color: "#10B981", fontSize: "22px" }}>✓</span> Direct DoFollow Traffic
+            <span style={{ color: "#10B981", fontSize: "22px" }}>•</span> Direct DoFollow Traffic
           </div>
           <div
             style={{
