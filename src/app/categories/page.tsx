@@ -21,6 +21,8 @@ import {
   MoreHorizontal,
 } from "lucide-react";
 
+export const dynamic = "force-dynamic";
+
 export const metadata: Metadata = {
   title: "Categories",
   description:
@@ -66,15 +68,20 @@ const CATEGORY_DESCRIPTIONS: Record<string, string> = {
 };
 
 export default async function CategoriesPage() {
-  const counts = await Promise.all(
-    CATEGORIES.map(async (cat) => ({
-      slug: cat.slug,
-      count: await db.listing.count({
-        where: { category: { slug: cat.slug }, status: "approved" },
-      }),
-    }))
-  );
-  const countMap = new Map(counts.map((c) => [c.slug, c.count]));
+  let countMap = new Map<string, number>();
+  try {
+    const counts = await Promise.all(
+      CATEGORIES.map(async (cat) => ({
+        slug: cat.slug,
+        count: await db.listing.count({
+          where: { category: { slug: cat.slug }, status: "approved" },
+        }),
+      }))
+    );
+    countMap = new Map(counts.map((c) => [c.slug, c.count]));
+  } catch {
+    countMap = new Map();
+  }
 
   return (
     <>

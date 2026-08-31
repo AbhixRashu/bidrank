@@ -11,6 +11,8 @@ import {
   ArrowRight,
 } from "lucide-react";
 
+export const dynamic = "force-dynamic";
+
 export const metadata: Metadata = {
   title: "Today's Ranking",
   description:
@@ -59,32 +61,44 @@ function TodayRow({
         #{rank}
       </div>
 
-      <div
-        className={`flex h-10 w-10 items-center justify-center rounded-lg text-sm font-bold ${colors[rank % colors.length]}`}
-      >
-        {listing.name.charAt(0).toUpperCase()}
-      </div>
-
-      <div className="flex-1 min-w-0">
-        <div className="flex items-center gap-2">
-          <Link
-            href={`/listing/${listing.slug}`}
-            className="text-sm font-semibold text-[#101114] hover:text-[#245BFF] transition-colors truncate"
-          >
-            {listing.name}
-          </Link>
-          {listing.verified && (
-            <CheckCircle className="h-3.5 w-3.5 text-[#138A4B] flex-shrink-0" />
-          )}
-          <Badge variant="default" className="hidden sm:inline-flex text-[10px] px-1.5">
-            {listing.category}
-          </Badge>
+      <div className="flex items-center gap-3 min-w-0">
+        <span
+          className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-bold ${
+            rank === 1
+              ? "bg-[#FF8A00] text-white"
+              : rank === 2
+              ? "bg-gray-400 text-white"
+              : rank === 3
+              ? "bg-amber-700 text-white"
+              : "bg-muted text-muted-foreground"
+          }`}
+        >
+          {rank}
+        </span>
+        <div className="min-w-0">
+          <div className="flex items-center gap-1.5">
+            <Link
+              href={`/listing/${listing.slug}`}
+              className="text-sm font-semibold hover:underline truncate"
+            >
+              {listing.name}
+            </Link>
+            {listing.verified && (
+              <CheckCircle className="h-3.5 w-3.5 text-blue-500 shrink-0" />
+            )}
+            {isTop3 && (
+              <Badge variant="secondary" className="text-[10px] py-0 px-1">
+                Top {rank}
+              </Badge>
+            )}
+          </div>
+          <p className="text-xs text-muted-foreground truncate">{listing.tagline}</p>
         </div>
-        <p className="text-xs text-gray-500 truncate mt-0.5">{listing.tagline}</p>
       </div>
 
-      <div className="hidden sm:flex items-center gap-4 text-xs text-gray-500">
-        <div className="flex items-center gap-1">
+      <div className="hidden md:flex items-center gap-6 text-xs text-muted-foreground">
+        <span className="w-24 truncate">{listing.category}</span>
+        <div className="flex items-center gap-1 w-16">
           <MousePointerClick className="h-3 w-3" />
           <span>{listing.clicks}</span>
         </div>
@@ -92,9 +106,9 @@ function TodayRow({
       </div>
 
       <div className="flex items-center gap-3">
-        <p className="text-sm font-bold text-[#101114]">{formatINR(listing.bidAmount)}</p>
+        <p className="text-sm font-bold">{formatINR(listing.bidAmount)}</p>
         <Link href={`/claim?target=${listing.slug}`} className="hidden sm:block">
-          <Button variant="outline" size="sm" className="text-xs whitespace-nowrap">
+          <Button variant="outline" size="sm" className="text-xs">
             Outbid
           </Button>
         </Link>
@@ -107,41 +121,46 @@ export default async function TodayPage() {
   const startOfDay = new Date();
   startOfDay.setHours(0, 0, 0, 0);
 
-  const dbListings = await db.listing.findMany({
-    where: {
-      status: "approved",
-      bids: {
-        some: {
-          status: "activated",
-          activatedAt: { gte: startOfDay },
+  let sorted: TodayListingItem[] = [];
+  try {
+    const dbListings = await db.listing.findMany({
+      where: {
+        status: "approved",
+        bids: {
+          some: {
+            status: "activated",
+            activatedAt: { gte: startOfDay },
+          },
         },
       },
-    },
-    include: {
-      category: true,
-      bids: {
-        where: { status: "activated", activatedAt: { gte: startOfDay } },
-        orderBy: { amount: "desc" },
-        take: 1,
+      include: {
+        category: true,
+        bids: {
+          where: { status: "activated", activatedAt: { gte: startOfDay } },
+          orderBy: { amount: "desc" },
+          take: 1,
+        },
+        _count: { select: { clickEvents: true } },
       },
-      _count: { select: { clickEvents: true } },
-    },
-  });
+    });
 
-  const sorted: TodayListingItem[] = dbListings
-    .filter((l) => l.bids.length > 0)
-    .sort((a, b) => b.bids[0].amount - a.bids[0].amount)
-    .map((l) => ({
-      id: l.id,
-      slug: l.slug,
-      name: l.name,
-      tagline: l.tagline,
-      category: l.category.name,
-      bidAmount: l.bids[0].amount,
-      claimedAt: l.bids[0].activatedAt ?? l.createdAt,
-      clicks: l._count.clickEvents,
-      verified: !!l.verifiedAt,
-    }));
+    sorted = dbListings
+      .filter((l) => l.bids.length > 0)
+      .sort((a, b) => b.bids[0].amount - a.bids[0].amount)
+      .map((l) => ({
+        id: l.id,
+        slug: l.slug,
+        name: l.name,
+        tagline: l.tagline,
+        category: l.category.name,
+        bidAmount: l.bids[0].amount,
+        claimedAt: l.bids[0].activatedAt ?? l.createdAt,
+        clicks: l._count.clickEvents,
+        verified: !!l.verifiedAt,
+      }));
+  } catch {
+    sorted = [];
+  }
 
   const topListing = sorted[0];
 
