@@ -36,6 +36,7 @@ export function VisitorProvider({ children }: { children: React.ReactNode }) {
   });
 
   const animationRef = useRef<number | null>(null);
+  const displayCountRef = useRef<number>(liveCount);
 
   // Sync live visitor fluctuations at periodic intervals
   useEffect(() => {
@@ -77,9 +78,9 @@ export function VisitorProvider({ children }: { children: React.ReactNode }) {
 
   // Smooth easing animation for live count
   useEffect(() => {
-    if (liveCount === displayLiveCount) return;
+    if (liveCount === displayCountRef.current) return;
 
-    const start = displayLiveCount;
+    const start = displayCountRef.current;
     const diff = liveCount - start;
     const duration = 700;
     const startTime = Date.now();
@@ -88,7 +89,9 @@ export function VisitorProvider({ children }: { children: React.ReactNode }) {
       const elapsed = Date.now() - startTime;
       const progress = Math.min(elapsed / duration, 1);
       const eased = 1 - Math.pow(1 - progress, 3);
-      setDisplayLiveCount(Math.round(start + diff * eased));
+      const newValue = Math.round(start + diff * eased);
+      displayCountRef.current = newValue;
+      setDisplayLiveCount(newValue);
 
       if (progress < 1) {
         animationRef.current = requestAnimationFrame(animate);
@@ -100,7 +103,7 @@ export function VisitorProvider({ children }: { children: React.ReactNode }) {
     return () => {
       if (animationRef.current) cancelAnimationFrame(animationRef.current);
     };
-  }, [liveCount, displayLiveCount]);
+  }, [liveCount]);
 
   return (
     <VisitorContext.Provider value={{ liveCount, displayLiveCount, totalVisitors }}>
